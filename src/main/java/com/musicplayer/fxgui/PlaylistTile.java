@@ -6,6 +6,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.control.ScrollPane;
 import java.util.ArrayList;
 import javafx.scene.control.Label;
+import javafx.scene.paint.Color;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -23,9 +24,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.io.File;
 
-
-
-
+/*  PlaylistTile class which is displayed in the library
+ * 
+ * @author Ryan Nguyen
+ */
 public class PlaylistTile extends Button{
     private Button button;
     private String name;
@@ -33,34 +35,43 @@ public class PlaylistTile extends Button{
     private String jsonPath;
     private PlaylistPage playlistPage;
     private int playlistNumber;
-    private ArrayList<Song> songList = new ArrayList<Song>();  // could make it an array list of songs or song tiles; probably song objects
+    private ArrayList<Song> songList = new ArrayList<Song>(); 
+    //Various constructors depending on the use case
     public PlaylistTile(){
         button = new Button();
         button.setPrefSize(200,200);
+        button.setStyle("-fx-background-color: #578E87;");
     }
     public PlaylistTile(String n, int num){
         playlistNumber = num;
         button = new Button();
         button.setPrefSize(200,200);
+        button.setStyle("-fx-background-color: #578E87;");
+        button.setTextFill(Color.WHITE);
         name = n;
     }
     public PlaylistTile(int num){
         playlistNumber = num;
         button = new Button();
         button.setPrefSize(200, 200);
+        button.setStyle("-fx-background-color: #578E87;");
+        button.setTextFill(Color.WHITE);
     }
-    //just creates tiles that already exist
+    //Constructor for making playlists that already exist in the playlistFiles directory
     public PlaylistTile(String p, String n, int num){
         button = new Button();
         button.setPrefSize(200, 200);
         name = n;
         playlistNumber = num;
         jsonPath = p;
+        button.setStyle("-fx-background-color: #578E87;");
+        button.setTextFill(Color.WHITE);
     }
-    
+    //Getter method
     public Button getButton(){
         return button;
     }
+    //Creates the playlist page to be displayed when you click on the PlaylistTile
     public PlaylistPage createPlaylistPage(){
         PlaylistPage pp = new PlaylistPage(jsonPath);
         playlistPage = pp;
@@ -75,6 +86,8 @@ public class PlaylistTile extends Button{
         }
         return name;
     }
+
+    //This method creates the JSON file where the playlist name and the songs within the playlist are stored
     public void createJSON(int num){
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         JsonObject mainObject = new JsonObject();
@@ -97,6 +110,7 @@ public class PlaylistTile extends Button{
             e.printStackTrace();
         }
     }
+    //method to add a song path to the Json file so that it is stored
     public void addPathToJson(String path){
         String jsonPath = "src/main/resources/playlistFiles/playlist" + playlistNumber + ".json";
         JsonObject existingData = readJsonFile(jsonPath);
@@ -105,6 +119,7 @@ public class PlaylistTile extends Button{
         String updatedString = existingData.toString();
         writeJsonFile(jsonPath, updatedString);
     }
+    //adds a name property to the Json after the playlist form is completed
     public void addNameToJson(){
         String jsonPath = "src/main/resources/playlistFiles/playlist" + playlistNumber + ".json";
         JsonObject existingData = readJsonFile(jsonPath);
@@ -112,6 +127,7 @@ public class PlaylistTile extends Button{
         String updatedString = existingData.toString();
         writeJsonFile(jsonPath, updatedString);
     }
+    //grabbing the existing Json from the playlistFiles directory
     public JsonObject readJsonFile(String path){
         try(FileReader reader = new FileReader(path)){
             Gson gson = new Gson();
@@ -122,6 +138,7 @@ public class PlaylistTile extends Button{
         }
         return new JsonObject();
     }
+    //Helper method for writing information to the Json file
     public void writeJsonFile(String p, String jsonString){
         try(FileWriter writer = new FileWriter(p)){
             writer.write(jsonString);            
@@ -133,24 +150,31 @@ public class PlaylistTile extends Button{
     public void setName(String n){
         name = n;
     }
-
+    
+    /* Playlist Page Class where songs in a playlist are displayed on the GUI
+     * 
+     * 
+     */
     class PlaylistPage extends Pane{
         VBox vbox;
         ScrollPane scrollPane;
         Pane pane;
         ArrayList<Song> songAL;
-        ArrayList<SongTile> songTileAL = new ArrayList<SongTile>();
+        ArrayList<SongTile> songTiles = new ArrayList<SongTile>();
+        ArrayList<SongTile> copySongTiles = new ArrayList<SongTile>();
         String path;
+        int timesSorted = 0;
         public PlaylistPage(String jp){
             path = jp;
             vbox = new VBox();
             vbox.setPrefSize(800,400);
+            vbox.setStyle("-fx-background-color: #04333C");
             scrollPane = new ScrollPane(vbox);
             scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
             scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
             scrollPane.setFitToWidth(false);
             scrollPane.setPrefSize(800, 400);
-
+            scrollPane.setStyle("-fx-background-color: #04333C");
             JsonArray ja = retrieveJsonArray(jp);
             if(ja == null){
                 vbox.getChildren().add(new Label("add a song!"));
@@ -161,19 +185,31 @@ public class PlaylistTile extends Button{
                     SongTile st = new SongTile(new Song(p));
                     st.getChildren().remove(1);
                     st.getLabel().setPrefSize(650,100);
-                    songTileAL.add(st);
+                    songTiles.add(st);
+                    copySongTiles.add(st); 
                     vbox.getChildren().add(st); 
                 }  
                 this.getChildren().add(scrollPane);
+            }
+        }
+
+        //Method for loading SongTiles onto the page after sorting
+        public void loadSongs(ArrayList<SongTile> al){
+            vbox.getChildren().clear();
+            for(SongTile s: al){
+                vbox.getChildren().add(s); 
             }
         }
         public VBox getVBox(){
             return vbox;
         }
         public ArrayList<SongTile> getSongList(){
-            return songTileAL;
+            return songTiles;
         }
-    }
+        public ArrayList<SongTile> getCopySongList(){
+            return copySongTiles;
+        }
+        //Method for pulling the song path array from the Json file
         public JsonArray retrieveJsonArray(String jp){
             try(FileReader fr = new FileReader(jp)){
                 JsonElement jsonElement = JsonParser.parseReader(fr); 
@@ -185,4 +221,12 @@ public class PlaylistTile extends Button{
                 return null;
             }
         }
+        //Times sorted is an attribute to help switch between the different sorting modes
+        public int getTimesSorted(){
+            return timesSorted;
+        }
+        public void incrementTimesSorted(){
+            timesSorted ++;
+        }
     }
+}

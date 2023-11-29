@@ -16,26 +16,30 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.layout.Region;
 
+/* Class for displaying the available playlists to add a song to
+ * 
+ * @author Ryan Nguyen
+ */
 public class PlaylistMenu extends Application{
     private SongTile songTile;
     ScrollPane scrollPane;
     VBox vbox = new VBox(); 
     Stage stage = new Stage();
+    //The menu on creation adds all existing playlists to a form
+    //You can select one of the playlists to add the corresponding song to
     public PlaylistMenu(SongTile s, ArrayList<PlaylistTile> pa){
         songTile = s;
         for(PlaylistTile x: pa){
+            System.out.println(x.getName());
             PlaylistButton pb = new PlaylistButton(x);
             pb.setPrefSize(180,100);
-
             pb.setOnAction(new EventHandler<ActionEvent>(){
                 @Override
                 public void handle(ActionEvent e){
                     pb.getPlaylistTile().addPathToJson(songTile.getSong().getFilePath());
                     stage.close();
                 }
-
             });
-
             vbox.getChildren().addAll(pb); 
         }
         start(stage);
@@ -64,7 +68,7 @@ public class PlaylistMenu extends Application{
     public static void main(String[] args){
         launch(args);
     }
-
+    //custom button class for the menu
     class PlaylistButton extends Button{
         PlaylistTile playlistTile;
         public PlaylistButton(PlaylistTile pt){

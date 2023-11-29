@@ -10,7 +10,6 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Graphics;
 import java.awt.GridLayout;
-import java.awt.Insets;
 import java.nio.file.Paths;
 
 import javax.swing.JPanel;
@@ -28,44 +27,52 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
+import javafx.geometry.Insets;
 
 /**
  *
- * @author Anhadh Sran
+ * @author Anhadh Sran, Ryan Nguyen
  */
 public class SongTile extends HBox{
     Button playButton = new Button();
     Button addButton = new Button();
     private Label label = new Label(); 
     private Song song;
+    private int age; 
+    //Constructor which takes a Song object; lots of formatting for the tile itself
     public SongTile(Song s) {
         song = s;
         this.setPrefSize(800, 100);
         this.setStyle("-fx-background-color:grey; -fx-text-fill:white;");
         playButton.setText("|>");
-        playButton.setPrefSize(50,50);
+        playButton.setPrefSize(30,30);
         addButton.setText("+");
-        addButton.setPrefSize(50,50);
+        addButton.setPrefSize(30,30);
         Region spacer = new Region();
         Region spacer2 = new Region();
         spacer2.setPrefWidth(5);
-        spacer.setPrefWidth(20);
-        label.setText(s.getSongTitle() + "  -  " + s.getSongArtist() + "  -  " + s.getDuration());
+        spacer.setPrefWidth(5);
+        label.setText(s.getSongTitle() + "  -  " + s.getSongArtist() + "  -  " + s.getAlbumName() + "  -  " + s.getDuration());
         label.setStyle("-fx-background-color: grey;");
         label.setPrefSize(550,100);
         this.getChildren().addAll(playButton,spacer2, addButton, spacer, label);
-        String hexCode = "#042627";
-        this.setStyle("-fx-background-color: " + hexCode + ";");
-        label.setStyle("-fx-background-color: " + hexCode + ";");
+        this.setStyle("-fx-background-color: #0c151b;");
+        label.setStyle("-fx-background-color: #0c151b;");
         label.setTextFill(Color.WHITE);
         playButton.setStyle("-fx-background-color: #C3CEDA;");
-        addButton.setStyle("-fx-background-color: #C3CEDA;");
-        this.setAlignment(Pos.CENTER);
+        addButton.setStyle("-fx-background-color: #C3CEDA;"); 
+        Insets i = new Insets(35, 5, 35, 5);
+        setMargin(playButton, i);
+        setMargin(addButton, i);
     }
+    //Getter / Setter methods
     public Song getSong(){
         return song;
     }
     public Label getLabel(){
         return label;
+    }
+    public void setAge(int num){
+        age = num;
     }
 }

@@ -11,6 +11,10 @@ import javafx.stage.WindowEvent;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 
+
+/* Driver class
+ * Everything runs through here
+*/
 public class Driver extends Application {
 	
 	@Override

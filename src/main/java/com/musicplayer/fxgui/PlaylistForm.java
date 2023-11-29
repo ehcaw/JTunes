@@ -12,7 +12,7 @@ import javafx.scene.Scene;
 import javafx.event.EventHandler;
 import javafx.event.ActionEvent;
 
-
+//This class is what is displayed when we want to create a new playlist
 public class PlaylistForm extends Application{
     Stage stage = new Stage();
     GridPane gridPane = new GridPane();
@@ -24,7 +24,8 @@ public class PlaylistForm extends Application{
         playlistTile = pt;
         start(stage);
     }
-
+    //start method for the application, which is overriden because we extend the application class
+    //Lots of formatting for the page itself
     public void start(Stage primaryStage){
         primaryStage.setTitle("Make a playlist!");
         Label playlistNameLabel = new Label("Enter Playlist Name");
@@ -39,8 +40,6 @@ public class PlaylistForm extends Application{
         gridPane.add(playlistName, 1, 1);
         button = new Button("Create Playlist");
         button.setPrefSize(100,50);
-        
-
         gridPane.add(button, 0,2);
         gridPane.setAlignment(Pos.CENTER);
         Scene scene = new Scene(gridPane, 400, 150);
@@ -58,6 +57,8 @@ public class PlaylistForm extends Application{
         });
     
     }
+    
+    //Getter methods
     public String getText(){
         return playlistName.getText();
     }
