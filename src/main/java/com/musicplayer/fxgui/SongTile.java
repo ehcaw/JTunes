@@ -56,8 +56,8 @@ public class SongTile extends HBox{
         label.setStyle("-fx-background-color: grey;");
         label.setPrefSize(550,100);
         this.getChildren().addAll(playButton,spacer2, addButton, spacer, label);
-        this.setStyle("-fx-background-color: #578E87;");
-        label.setStyle("-fx-background-color: #578E87;");
+        this.setStyle("-fx-background-color: #2F3D40;");   //#578E87
+        label.setStyle("-fx-background-color: #2F3D40;");
         label.setTextFill(Color.WHITE);
         playButton.setStyle("-fx-background-color: #C3CEDA;");
         addButton.setStyle("-fx-background-color: #C3CEDA;"); 
