@@ -43,7 +43,10 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
 import com.google.gson.stream.JsonReader;
 
-//Heart of the program; everything is controlled through this class
+/* Heart of the program; everything is controlled through here
+ * 
+ * @author Ryan Nguyen, Anhadh Sran
+ */
 public class Controller implements Initializable {
     //All components controlled through the FXML File are listed here
     @FXML
@@ -103,6 +106,9 @@ public class Controller implements Initializable {
         numSongs = files.length;
         if (files != null) {
             for (int i = 0; i < files.length; i++) {
+                if(files[i].getPath().equals("src/main/resources/songfolder/TEST_One minute of silence (ID 0917)_BSB 9.47.53 AM.mp3")){
+                    songFiles.add(files[i]);
+                }
                 if(!files[i].getName().substring(0, 1).equals(".") && !files[i].getPath().equals("src/main/resources/songfolder/TEST_One minute of silence (ID 0917)_BSB 9.47.53 AM.mp3")){
                     songFiles.add(files[i]);
                     Song s = new Song(files[i].getPath());
@@ -123,6 +129,7 @@ public class Controller implements Initializable {
         vbox.setPadding(new Insets(10));
         vbox.setSpacing(5);
         vbox.setStyle("-fx-background-color: #04333C");
+        vbox.setPrefSize(800,400);
         
         scrollPane = new ScrollPane(vbox);
         scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);

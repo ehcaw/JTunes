@@ -11,11 +11,11 @@
    <children>
       <Pane fx:id="sidePane" prefHeight="600.0" prefWidth="164.0" style="-fx-background-color: #0c151b;">
          <children>
-            <Button fx:id="homeButton" layoutX="29.0" layoutY="104.0" mnemonicParsing="false" onAction="#home" prefHeight="90.0" prefWidth="100.0" style="-fx-background-color: #04333C; -fx-font-family: Gotham;" text="HOME" textFill="WHITE">
+            <Button fx:id="homeButton" layoutX="29.0" layoutY="81.0" mnemonicParsing="false" onAction="#home" prefHeight="90.0" prefWidth="100.0" style="-fx-background-color: #04333C; -fx-font-family: Gotham;" text="HOME" textFill="WHITE">
                <font>
                   <Font name="Microsoft Sans Serif" size="13.0" />
                </font></Button>
-            <Button fx:id="libraryButton" alignment="CENTER" layoutX="29.0" layoutY="246.0" mnemonicParsing="false" onAction="#library" prefHeight="90.0" prefWidth="100.0" style="-fx-background-color: #04333C;" text="LIBRARY" textFill="WHITE">
+            <Button fx:id="libraryButton" alignment="CENTER" layoutX="29.0" layoutY="234.0" mnemonicParsing="false" onAction="#library" prefHeight="90.0" prefWidth="100.0" style="-fx-background-color: #04333C;" text="LIBRARY" textFill="WHITE">
                <font>
                   <Font name="Microsoft Sans Serif" size="13.0" />
                </font></Button>
@@ -23,7 +23,7 @@
                <font>
                   <Font name="Microsoft Sans Serif" size="13.0" />
                </font></Label>
-            <Button fx:id="returnButton" layoutX="29.0" layoutY="388.0" mnemonicParsing="false" onAction="#returnFunction" prefHeight="90.0" prefWidth="100.0" style="-fx-background-color: #04333C; -fx-font-family: Gotham;" text="RETURN" textFill="WHITE">
+            <Button fx:id="returnButton" layoutX="29.0" layoutY="386.0" mnemonicParsing="false" onAction="#returnFunction" prefHeight="90.0" prefWidth="100.0" style="-fx-background-color: #04333C; -fx-font-family: Gotham;" text="RETURN" textFill="WHITE">
                <font>
                   <Font name="Microsoft Sans Serif" size="13.0" />
                </font></Button>
@@ -34,11 +34,12 @@
             <Pane fx:id="middlePane" layoutX="-111.0" layoutY="75.0" prefHeight="403.0" prefWidth="800.0" style="-fx-background-color: #042627;" />
             <Pane fx:id="topPane" layoutX="-111.0" prefHeight="80.0" prefWidth="800.0" style="-fx-background-color: #0c151b;">
                <children>
-                  <Label fx:id="topPaneLabel" layoutY="-1.0" prefHeight="78.0" prefWidth="494.0" style="-fx-background-color: #0c151b;" text="   Welcome to your Home Directory! Add a song to get Started!" textFill="WHITE" />
-                  <Button fx:id="fileButton" defaultButton="true" layoutX="614.0" layoutY="14.0" minWidth="53.0" mnemonicParsing="false" onAction="#addSong" prefHeight="53.0" prefWidth="53.0" style="-fx-background-color: #04333C;" text="+" textFill="WHITE">
+                  <Label fx:id="topPaneLabel" layoutX="54.0" layoutY="1.0" prefHeight="78.0" prefWidth="494.0" style="-fx-background-color: #0c151b;" text="   Welcome to your Home Directory! Add a song to get Started!" textFill="WHITE" />
+                  <Button fx:id="fileButton" defaultButton="true" layoutX="539.0" layoutY="14.0" minWidth="53.0" mnemonicParsing="false" onAction="#addSong" prefHeight="53.0" prefWidth="53.0" style="-fx-background-color: #04333C;" text="+" textFill="WHITE">
                      <font>
                         <Font size="14.0" />
                      </font></Button>
+                  <Button fx:id="sortButton" layoutX="657.0" layoutY="14.0" mnemonicParsing="false" onAction="#sort" prefHeight="53.0" prefWidth="72.0" style="-fx-background-color: #04333C;" text="Sort" textFill="WHITE" />
                </children></Pane>
          </children>
       </Pane>
@@ -51,7 +52,7 @@
             <Slider fx:id="timeSlider" layoutX="295.0" layoutY="84.0" prefHeight="24.0" prefWidth="207.0" />
             <Label fx:id="songLabel" layoutY="37.0" prefHeight="30.0" prefWidth="226.0" style="-fx-background-color: #0c151b;" text="   No Song Currently Playing!" textFill="WHITE">
                <font>
-                  <Font size="12.0" />
+                  <Font size="17.0" />
                </font>
             </Label>
          </children>
