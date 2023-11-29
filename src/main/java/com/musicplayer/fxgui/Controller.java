@@ -103,7 +103,10 @@ public class Controller implements Initializable {
         numSongs = files.length;
         if (files != null) {
             for (int i = 0; i < files.length; i++) {
-                if(!files[i].getName().substring(0, 1).equals(".") && !files[i].getPath().equals("src/main/resources/songfolder/TEST_One minute of silence (ID 0917)_BSB 9.47.53 AM.mp3")){
+                if(files[i].getPath().equals("src/main/resources/songfolder/TEST_One minute of silence (ID 0917)_BSB 9.47.53 AM.mp3")){
+                    songFiles.add(files[i]);
+                }
+                if(!files[i].getName().substring(0, 1).equals(".") & !files[i].getPath().equals("src/main/resources/songfolder/TEST_One minute of silence (ID 0917)_BSB 9.47.53 AM.mp3")){
                     songFiles.add(files[i]);
                     Song s = new Song(files[i].getPath());
                     songObjects.add(s);
@@ -122,6 +125,7 @@ public class Controller implements Initializable {
         vbox = new VBox();
         vbox.setPadding(new Insets(10));
         vbox.setSpacing(5);
+        vbox.setPrefSize(800,400);
         vbox.setStyle("-fx-background-color: #04333C");
         
         scrollPane = new ScrollPane(vbox);
@@ -130,14 +134,13 @@ public class Controller implements Initializable {
         scrollPane.setFitToWidth(false);
         scrollPane.prefHeightProperty().bind(homePage.heightProperty());
         scrollPane.setPrefWidth(800);
-        scrollPane.setStyle("-fx-background-color:  #04333C");
+        scrollPane.setStyle("-fx-background-color:#04333C");
 
+        homepageCreation();
         homePage.getChildren().add(scrollPane);
         homePage.setPrefSize(800,400);
         homePage.setStyle("-fx-background-color: #04333C;");
 
-        homepageCreation();
-        
         middlePane.getChildren().add(homePage);
         lastSeenPanes.add(homePage);
         this.libraryCreation();

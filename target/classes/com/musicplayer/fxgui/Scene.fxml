@@ -35,10 +35,11 @@
             <Pane fx:id="topPane" layoutX="-111.0" prefHeight="80.0" prefWidth="800.0" style="-fx-background-color: #0c151b;">
                <children>
                   <Label fx:id="topPaneLabel" layoutY="-1.0" prefHeight="78.0" prefWidth="494.0" style="-fx-background-color: #0c151b;" text="   Welcome to your Home Directory! Add a song to get Started!" textFill="WHITE" />
-                  <Button fx:id="fileButton" defaultButton="true" layoutX="614.0" layoutY="14.0" minWidth="53.0" mnemonicParsing="false" onAction="#addSong" prefHeight="53.0" prefWidth="53.0" style="-fx-background-color: #04333C;" text="+" textFill="WHITE">
+                  <Button fx:id="fileButton" defaultButton="true" layoutX="494.0" layoutY="14.0" minWidth="53.0" mnemonicParsing="false" onAction="#addSong" prefHeight="53.0" prefWidth="53.0" style="-fx-background-color: #04333C;" text="+" textFill="WHITE">
                      <font>
                         <Font size="14.0" />
                      </font></Button>
+                  <Button layoutX="638.0" layoutY="14.0" mnemonicParsing="false" prefHeight="53.0" prefWidth="72.0" style="-fx-background-color: #04333C;" text="Button" textFill="WHITE" />
                </children></Pane>
          </children>
       </Pane>
@@ -51,7 +52,7 @@
             <Slider fx:id="timeSlider" layoutX="295.0" layoutY="84.0" prefHeight="24.0" prefWidth="207.0" />
             <Label fx:id="songLabel" layoutY="37.0" prefHeight="30.0" prefWidth="226.0" style="-fx-background-color: #0c151b;" text="   No Song Currently Playing!" textFill="WHITE">
                <font>
-                  <Font size="12.0" />
+                  <Font size="17.0" />
                </font>
             </Label>
          </children>
