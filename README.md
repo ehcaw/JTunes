@@ -1,5 +1,5 @@
 # JTunes:
-Team Number 7, Andadh Singh Sran, Austin Trinh, Maria Sanchez Rodriguez, Ryan Nguyen
+Team Number 7, Anhadh Singh Sran, Austin Trinh, Maria Sanchez Rodriguez, Ryan Nguyen
 
 ### Problem: 
 Music is too spread out, there is no way to organize and store all your music in one place. Think about how Youtube has all the music on their website, but you have to search over and over again if you want to change to a new song. 
