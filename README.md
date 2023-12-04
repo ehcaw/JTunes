@@ -25,3 +25,21 @@ Create a GUI for the user to interact with in order to add songs, create playlis
 
 ### Link to presentation: 
 https://docs.google.com/presentation/d/1fEWIZ7N7Qh_6RY-ZX1X_08F0s9IKzXIfFaaXlmTCsNk/edit?usp=sharing
+
+### Steps to run code: 
+1. Clone the repository
+2. Find the controller class in the musicplayer folder and go to the initialize method
+3. Find the file path inside the initialize method and replace it with the path from the song already included in the resources folder; different OS format the file path differently so you must replace it with the one that your OS recognizes.
+4. Run the driver file to start the app (you can also start by adding MP3 files you already have into the resources/songfolder directory; files from spotifydown.com are recommended because the metadata in those mp3 files is very clean and formattable)
+
+### Snapshot: 
+https://drive.google.com/file/d/1BW3SR41seopNQp6qxUnGBNsTYctgKZDL/view?usp=sharing
+
+### How we solved our problem: 
+We solved our problem by creating an interface where a user can manage music they have downloaded easily and can use as an offline music player, provided they have some internet access to download the songs to begin with. It has a modern and an easily navigable interface that is user-friendly and intuitive. 
+
+### UML Diagram: 
+https://drive.google.com/file/d/1zXQAyqP0HhOgq4nMV5OhTZhNYkohxbDx/view?usp=sharing
+
+### Description: 
+JTunes is a simple computer application that allows you to listen to music completely offline. It allows you to add songs in mp3 format, make playlists and essentially have all the functionalities of a modern music application while being unreliant on the internet. 
