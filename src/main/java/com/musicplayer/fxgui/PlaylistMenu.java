@@ -1,20 +1,16 @@
 package com.musicplayer.fxgui;
 
 import javafx.scene.Scene;
-import javafx.scene.control.ContextMenu;
-import javafx.scene.control.MenuItem;
 import javafx.stage.Stage;
 import javafx.application.Application;
 import javafx.scene.layout.VBox;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.input.ContextMenuEvent;
 import java.util.ArrayList;
 import javafx.scene.control.Button;
 import javafx.geometry.Insets;
 
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.scene.layout.Region;
 
 /* Class for displaying the available playlists to add a song to
  * 
@@ -24,11 +20,10 @@ public class PlaylistMenu extends Application{
     private SongTile songTile;
     ScrollPane scrollPane;
     VBox vbox = new VBox(); 
-    Stage stage = new Stage();
+    public Stage stage = new Stage();
     //The menu on creation adds all existing playlists to a form
     //You can select one of the playlists to add the corresponding song to
     public PlaylistMenu(SongTile s, ArrayList<PlaylistTile> pa){
-        songTile = s;
         for(PlaylistTile x: pa){
             System.out.println(x.getName());
             PlaylistButton pb = new PlaylistButton(x);
@@ -36,7 +31,10 @@ public class PlaylistMenu extends Application{
             pb.setOnAction(new EventHandler<ActionEvent>(){
                 @Override
                 public void handle(ActionEvent e){
-                    pb.getPlaylistTile().addPathToJson(songTile.getSong().getFilePath());
+                    pb.getPlaylistTile().addPathToJson(s.getSong().getFilePath());
+                    songTile = s.cloneSongTile(s);
+                    songTile.getChildren().remove(1);
+                    x.getPlaylistPage().getVBox().getChildren().add(songTile);
                     stage.close();
                 }
             });
@@ -51,7 +49,7 @@ public class PlaylistMenu extends Application{
         scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         scrollPane.setFitToWidth(false);
         scrollPane.prefHeightProperty().bind(vbox.heightProperty());
-        Scene scene = new Scene(scrollPane ,200, 400);
+        Scene scene = new Scene(scrollPane ,300, 400);
         if(vbox.getChildren().size() > 1){
             primaryStage.setTitle("Choose a playlist to add to!");
         }
@@ -60,10 +58,12 @@ public class PlaylistMenu extends Application{
         }
         primaryStage.setScene(scene);
         primaryStage.show();
-
     }
     public VBox getVBox(){
         return vbox;
+    }
+    public SongTile getSongTile(){
+        return songTile;
     }
     public static void main(String[] args){
         launch(args);

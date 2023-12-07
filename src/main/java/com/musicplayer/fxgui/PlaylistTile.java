@@ -15,14 +15,12 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
-import com.google.gson.stream.JsonReader;
 
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.io.File;
 
 /*  PlaylistTile class which is displayed in the library
  * 
@@ -35,7 +33,7 @@ public class PlaylistTile extends Button{
     private String jsonPath;
     private PlaylistPage playlistPage;
     private int playlistNumber;
-    private ArrayList<Song> songList = new ArrayList<Song>(); 
+    private ArrayList<SongTile> songList = new ArrayList<SongTile>(); 
     //Various constructors depending on the use case
     public PlaylistTile(){
         button = new Button();
@@ -66,25 +64,31 @@ public class PlaylistTile extends Button{
         jsonPath = p;
         button.setStyle("-fx-background-color: #578E87;");
         button.setTextFill(Color.WHITE);
+        createPlaylistPage(jsonPath);
     }
     //Getter method
     public Button getButton(){
         return button;
     }
     //Creates the playlist page to be displayed when you click on the PlaylistTile
-    public PlaylistPage createPlaylistPage(){
-        PlaylistPage pp = new PlaylistPage(jsonPath);
-        playlistPage = pp;
+    public PlaylistPage createPlaylistPage(String jsonpath){
+        PlaylistPage pp = new PlaylistPage(jsonpath);
         return pp;
     }
     public PlaylistPage getPlaylistPage(){
         return playlistPage;
+    }
+    public void setPlaylistPage(PlaylistPage p){
+        playlistPage = p;
     }
     public String getName(){
         if(name.charAt(0) == '\"'){
             name = name.substring(1, name.length() -1); 
         }
         return name;
+    }
+    public String getJsonPath(){
+        return jsonPath;
     }
 
     //This method creates the JSON file where the playlist name and the songs within the playlist are stored
@@ -98,16 +102,16 @@ public class PlaylistTile extends Button{
         String path = "src/main/resources/playlistFiles/";
         String filename = "playlist" + num + ".json";
         jsonName = "playlist" + num;
-        
         Path filePath = Paths.get(path, filename);
         jsonPath = path + jsonName + ".json";
-        playlistPage = createPlaylistPage();
         try(FileWriter writer = new FileWriter(filePath.toString())){
             writer.write(jsonString);
-            System.out.println("json written");
         }
         catch(IOException e){
             e.printStackTrace();
+        }
+        finally{
+            playlistPage = createPlaylistPage(jsonPath);
         }
     }
     //method to add a song path to the Json file so that it is stored
@@ -150,7 +154,32 @@ public class PlaylistTile extends Button{
     public void setName(String n){
         name = n;
     }
-    
+    public void removeSongFromPlaylist(String path, String jsonpath, SongTile st){
+        try{
+            JsonObject existingData = readJsonFile(jsonpath);
+            JsonArray itemsArray = existingData.getAsJsonArray("song_paths");
+            for(int i = 0; i < itemsArray.size(); i++){
+                JsonElement je = itemsArray.get(i);
+                System.out.println(je.toString());
+                System.out.println(st.getSong().getFilePath());
+                if(je.toString().substring(1,je.toString().length() - 1).equals(st.getSong().getFilePath())){
+                    itemsArray.remove(i);
+                    break;
+                }
+            }
+            String updatedString = existingData.toString();
+            writeJsonFile(jsonpath, updatedString);
+            songList.remove(st);
+            playlistPage.getVBox().getChildren().remove(st);
+            playlistPage.getVBox().requestLayout();
+        }
+        catch(JsonParseException e){
+            e.printStackTrace();
+        }
+    }
+    public ArrayList<SongTile> getSongList(){
+        return songList;
+    }
     /* Playlist Page Class where songs in a playlist are displayed on the GUI
      * 
      * 
@@ -160,8 +189,7 @@ public class PlaylistTile extends Button{
         ScrollPane scrollPane;
         Pane pane;
         ArrayList<Song> songAL;
-        ArrayList<SongTile> songTiles = new ArrayList<SongTile>();
-        ArrayList<SongTile> copySongTiles = new ArrayList<SongTile>();
+        ArrayList<SongTile> copySongList = new ArrayList<SongTile>();
         String path;
         int timesSorted = 0;
         public PlaylistPage(String jp){
@@ -180,34 +208,29 @@ public class PlaylistTile extends Button{
                 vbox.getChildren().add(new Label("add a song!"));
             }
             else{
+                songList = new ArrayList<SongTile>();
                 for(int i = 0; i < ja.size(); i++){
                     String p = ja.get(i).getAsString();
                     SongTile st = new SongTile(new Song(p));
                     st.getChildren().remove(1);
                     st.getLabel().setPrefSize(650,100);
-                    songTiles.add(st);
-                    copySongTiles.add(st); 
+                    songList.add(st);
+                    copySongList.add(st); 
                     vbox.getChildren().add(st); 
                 }  
                 this.getChildren().add(scrollPane);
             }
         }
-
-        //Method for loading SongTiles onto the page after sorting
+        //Method for loading SongTiles onto the page after an action
         public void loadSongs(ArrayList<SongTile> al){
             vbox.getChildren().clear();
-            for(SongTile s: al){
-                vbox.getChildren().add(s); 
-            }
+            vbox.getChildren().addAll(al);
         }
         public VBox getVBox(){
             return vbox;
         }
-        public ArrayList<SongTile> getSongList(){
-            return songTiles;
-        }
         public ArrayList<SongTile> getCopySongList(){
-            return copySongTiles;
+            return copySongList;
         }
         //Method for pulling the song path array from the Json file
         public JsonArray retrieveJsonArray(String jp){

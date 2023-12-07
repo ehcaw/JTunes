@@ -31,6 +31,10 @@ import javafx.scene.media.MediaPlayer.Status;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.control.TextField;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 
 import org.jaudiotagger.audio.AudioFile;
 import org.jaudiotagger.audio.AudioFileIO;
@@ -71,11 +75,14 @@ public class Controller implements Initializable {
     private Pane topPane;
     @FXML
     private Button sortButton;
+    @FXML
+    private TextField searchbar;
+    @FXML
+    private Label label1;
 
 //All attributes of controller; not controlled by the FXML
     private Media media;
     private MediaPlayer player;
-    private int songIndex = 0;
     private File directory;
 	private File[] files;
 	private ArrayList<File> songFiles;
@@ -94,6 +101,8 @@ public class Controller implements Initializable {
     private GridPane gp; 
     private int timesSorted = 0; 
     private PlaylistTile currentPlaylist;
+    private ArrayList<SongTile> songQueue = new ArrayList<SongTile>();
+    private int currSongIndex = 0;
     /* essentially start method for the application
      * starts by scanning through the song folder directory and initializing all SongTile Objects 
      */
@@ -116,14 +125,8 @@ public class Controller implements Initializable {
                 }
             }
         }
-        //setting up the media player
-        numSongs = songFiles.size();
-        if(numSongs > 0){
-            media = new Media(songFiles.get(songIndex).toURI().toString());
-            player = new MediaPlayer(media);
-            player.setVolume(50);
-        }
-
+        //setting up searchbar functionalities; searchbar that works for the library vs when you're on a playlist page
+        searchbar.textProperty().addListener((observable, oldValue, newValue) -> { filterData(newValue, songTiles, vbox);});
         //editing the style of the pane
         vbox = new VBox();
         vbox.setPadding(new Insets(10));
@@ -131,7 +134,8 @@ public class Controller implements Initializable {
         vbox.setPrefSize(800,400);
         vbox.setStyle("-fx-background-color: #04333C");
         vbox.setPrefSize(800,400);
-        
+        //scrollpane customization; this allows the home page to be scrollable(we create the scrollpane using the vbox 
+        //so it can scale as we add more songs
         scrollPane = new ScrollPane(vbox);
         scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
         scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
@@ -139,12 +143,13 @@ public class Controller implements Initializable {
         scrollPane.prefHeightProperty().bind(homePage.heightProperty());
         scrollPane.setPrefWidth(800);
         scrollPane.setStyle("-fx-background-color:#04333C");
-
+        //calls the homepage creation method which actually makes the songtile objects + customizes the homepage
         homepageCreation();
         homePage.getChildren().add(scrollPane);
         homePage.setPrefSize(800,400);
         homePage.setStyle("-fx-background-color: #04333C;");
-
+        label1.setAlignment(Pos.CENTER);
+        topPaneLabel.setAlignment(Pos.CENTER);
         middlePane.getChildren().add(homePage);
         lastSeenPanes.add(homePage);
         this.libraryCreation();
@@ -154,9 +159,17 @@ public class Controller implements Initializable {
             public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
                 player.setVolume(volumeSlider.getValue() * 0.01);
             }
-        });
-
-        initializeTimeSlider();     
+        });     
+        //setting up the initial song queue; should be the songs on the homepage
+        songQueue = songTiles;
+        //setting up the media player
+        numSongs = songFiles.size();
+        media = new Media(Paths.get(files[1].getPath()).toUri().toString());
+        player = new MediaPlayer(media);
+        player.setVolume(50);
+        searchbar.setVisible(true);
+        topPaneLabel.setVisible(false);
+        initializeTimeSlider(); 
     }
     //this method adds the SongTiles so that the page can display
     //Also sets up the various buttons that the tile has (play, add to playlist)
@@ -167,12 +180,8 @@ public class Controller implements Initializable {
             copySongTiles.add(st);
             int j = i;
             setupPlayButton(st);
-            st.addButton.setOnAction(new EventHandler<ActionEvent>(){
-                @Override
-                public void handle(ActionEvent e){
-                    PlaylistMenu pm = new PlaylistMenu(st, playlistArray);
-                }
-            });
+            setupDeleteButton(st);
+            setupAddButton(st);
             vbox.getChildren().add(st);
         }
     }
@@ -184,7 +193,6 @@ public class Controller implements Initializable {
                 updatesValues();
             }
         });
-
         timeSlider.valueProperty().addListener(new ChangeListener<Number>() {
             @Override
             public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
@@ -192,7 +200,6 @@ public class Controller implements Initializable {
                     player.seek(player.getMedia().getDuration().multiply(timeSlider.getValue() / 100)); 
                 }
             }
-            
         });    
     }
     //play function
@@ -205,7 +212,6 @@ public class Controller implements Initializable {
             setLabel();
             playButton.setText("|>");
             player.play();
-
         }
     }
     //changes one of the labels so it states the song that is currently playing
@@ -222,45 +228,49 @@ public class Controller implements Initializable {
     }
     //the functionality for the rewind button
     public void prevMedia() {
-        if (songIndex > 0) {
-            songIndex--;
+        if (currSongIndex > 0) {
+            currSongIndex--;
             player.stop();
-            media = new Media(songFiles.get(songIndex).toURI().toString());
+            media = new Media(Paths.get(songQueue.get(currSongIndex).getSong().getFilePath()).toUri().toString());
             player = new MediaPlayer(media);
             player.play();
             initializeTimeSlider();
             setLabel();
+            playButton.setText("|>");
         }
         else {
-            songIndex = songFiles.size() - 1;
+            currSongIndex = songFiles.size() - 1;
             player.stop();
-            media = new Media(songFiles.get(songIndex).toURI().toString());
+            media = new Media(Paths.get(songQueue.get(currSongIndex).getSong().getFilePath()).toUri().toString());
             player = new MediaPlayer(media);
             setLabel();
             player.play();
             initializeTimeSlider();
+            playButton.setText("|>");
             
         }
     }
     //the functionality for the skip button
     public void nextMedia() {
-        if (songIndex < songFiles.size() - 1) {
-            songIndex++;
+        if (currSongIndex < songQueue.size() - 1) {
+            currSongIndex++;
             player.stop();
-            media = new Media(songFiles.get(songIndex).toURI().toString());
+            media = new Media(Paths.get(songQueue.get(currSongIndex).getSong().getFilePath()).toUri().toString());
             player = new MediaPlayer(media);
             setLabel();
             player.play();
             initializeTimeSlider();
+            playButton.setText("|>");
         }
         else {
-            songIndex = 0;
+            currSongIndex = 0;
             player.stop();
-            media = new Media(songFiles.get(songIndex).toURI().toString());
+            media = new Media(Paths.get(songQueue.get(currSongIndex).getSong().getFilePath()).toUri().toString());
             player = new MediaPlayer(media);
             setLabel();
             player.play();
             initializeTimeSlider();
+            playButton.setText("|>");
         }
     }
     /* functionality for the + button
@@ -278,34 +288,6 @@ public class Controller implements Initializable {
                 type = fileName.substring(index + 1);
         }
         if(type.equals("mp3")){
-            songFiles.add(file);
-            Song s = new Song(file.getPath());
-            songObjects.add(s);
-            SongTile st = new SongTile(s);
-            songTiles.add(st); 
-            copySongTiles.add(st);
-            int j = numSongs;
-            setupPlayButton(st);
-            st.addButton.setOnAction(new EventHandler<ActionEvent>(){
-                @Override
-                public void handle(ActionEvent e){
-                    PlaylistMenu pm = new PlaylistMenu(st, playlistArray);
-                    File d = new File("src/main/resources/playlistFiles");
-                    File[] f = d.listFiles(); 
-                    String sourcePath = s.getFilePath(); 
-                    String destinationPath = "src/main/resources/songfolder/";
-                    try{
-                        Path source = Paths.get(sourcePath);
-                        Path destination = Paths.get(destinationPath);
-                        Files.copy(source, destination);
-                    }
-                    catch(IOException excep){
-                        excep.printStackTrace();
-                    }
-                }
-            });
-            vbox.getChildren().add(st);
-            numSongs += 1;
             String directoryPath = directory.getPath();
             Path d = Paths.get(directoryPath);
             Path f = Paths.get(file.getPath());
@@ -315,25 +297,46 @@ public class Controller implements Initializable {
             }
             catch(Exception e){}
             }
+            songFiles.add(file);
+            String fp = file.getPath().substring(file.getPath().lastIndexOf("/"));
+            String directoryPath = directory.getPath();
+            Song s = new Song(directory + fp);
+            songObjects.add(s);
+            SongTile st = new SongTile(s);
+            songTiles.add(st); 
+            copySongTiles.add(st);
+            int j = numSongs;
+            setupPlayButton(st);
+            setupDeleteButton(st);
+            setupAddButton(st);
+            vbox.getChildren().add(st);
+            numSongs += 1;
         }
         else{
             PlaylistTile pt = new PlaylistTile(playlistCount);
             PlaylistForm pf = new PlaylistForm(pt); 
             int row = playlistCount / 3;
             int col = playlistCount % 3;
+            pt.createJSON(playlistCount);
             pt.getButton().setOnAction(new EventHandler<ActionEvent>() {
                     @Override
                     public void handle(ActionEvent e){
                         middlePane.getChildren().clear();
-                        middlePane.getChildren().add(pt.createPlaylistPage());
-                        for(SongTile s: pt.getPlaylistPage().getSongList()){
+                        middlePane.getChildren().add(pt.createPlaylistPage(pt.getJsonPath()));
+                        for(SongTile s: pt.getSongList()){
                             setupPlayButton(s);
+                            setupDeleteButton(s);
+                            s.getChildren().remove(1);
                         }
-                        lastSeenPanes.add(pt.createPlaylistPage());
+                        lastSeenPanes.add(pt.getPlaylistPage());
                         seenPanesIndex += 1;
                         sortButton.setVisible(true);
                         fileButton.setVisible(false);
-                        currentPlaylist = pt; 
+                        searchbar.setVisible(false);
+                        label1.setText("JTunes");
+                        label1.setVisible(true);
+                        currentPlaylist = pt;
+                        songQueue = pt.getSongList(); 
                         if(pt.getName().charAt(0) == '\"'){
                             topPaneLabel.setText(pt.getName().substring(1, pt.getName().length() - 1));
                         }
@@ -342,12 +345,11 @@ public class Controller implements Initializable {
                         }
                     }
             });
-            pt.createJSON(playlistCount);
             playlistCount++;
             playlistArray.add(pt);
             gp.add(pt.getButton(), col, row);
     }
-}   
+    }   
     //all the songTiles have a playButton; this method just sets it up
     public void setupPlayButton(SongTile s){
         s.playButton.setOnAction(new EventHandler<ActionEvent>(){
@@ -360,6 +362,7 @@ public class Controller implements Initializable {
                         setLabel();
                         playButton.setText("|>");
                         player.play();
+                        currSongIndex = songQueue.indexOf(s);
                     }
                    else{
                         player.pause(); 
@@ -373,15 +376,102 @@ public class Controller implements Initializable {
                 }
             });
     }
+    public void setupAddButton(SongTile s){
+        s.addButton.setOnAction(new EventHandler<ActionEvent>(){
+            @Override
+            public void handle(ActionEvent e){
+                PlaylistMenu pm = new PlaylistMenu(s, playlistArray);
+            }
+        });
+    }
+    //This sets up the delete button; there are two cases of the delete button functionality
+    public void setupDeleteButton(SongTile s){
+        //if the delete butotn is from a song tile in the playlist, it will remove the song from the playlist but not the library
+        if(s.getChildren().get(2) instanceof Button){
+            s.getDeleteButton().setOnAction(event -> deleteSongFromLibrary(s));
+        }
+        //if the delete button is from a song tile in the playlist, it will remove the song from the playlist but not the library
+        else{
+            s.getDeleteButton().setOnAction(e -> deleteSongFromPlaylist(s));
+        }
+        //sets up hovering functionality so the UI is cleaner
+        s.setOnMouseEntered(e -> {
+            s.getDeleteButton().setVisible(true);
+            s.getPlayButton().setVisible(true);
+            s.getAddButton().setVisible(true);
+        });
+        s.setOnMouseExited(e -> {
+            s.getDeleteButton().setVisible(false);
+            s.getPlayButton().setVisible(false);
+            s.getAddButton().setVisible(false);
+        });
+    }
+    //this calls a playlistTile method to remove a song from a playlist, removing the visual tile and the path from the JSON
+    public void deleteSongFromPlaylist(SongTile st){
+        try{
+            currentPlaylist.removeSongFromPlaylist(st.getSong().getFilePath(), currentPlaylist.getJsonPath(), st);
+            for(SongTile s: currentPlaylist.getSongList()){
+                System.out.println(s.getSong().getSongTitle());
+            }
+            middlePane.getChildren().clear();
+            middlePane.getChildren().add(currentPlaylist.createPlaylistPage(currentPlaylist.getJsonPath()));
+            for(SongTile s: currentPlaylist.getSongList()){
+                setupPlayButton(s);
+                setupDeleteButton(s);
+                s.getChildren().remove(1);
+            }
+        }
+        catch(JsonParseException e){
+            e.printStackTrace();
+        }
+    }
+    /*this removes the file from the songfolder directory as well as removes all instances of the song in all 
+    //playlists using the playlistTile removeSongFromPlaylist method 
+    */
+    public void deleteSongFromLibrary(SongTile st){
+        Path path = Paths.get(st.getSong().getFilePath());
+        try{
+            for(PlaylistTile p: playlistArray){
+                ArrayList<SongTile> arr = p.getSongList();
+                for(int i = 0; i < arr.size(); i++){
+                    SongTile songtile = arr.get(i);
+                    if(songtile.getSong().getFilePath().equals(st.getSong().getFilePath())){
+                        p.getSongList().remove(songtile);
+                        p.removeSongFromPlaylist(songtile.getSong().getFilePath(), p.getJsonPath(), songtile);
+                        p.createPlaylistPage(p.getJsonPath());
+                        for(SongTile s: p.getSongList()){
+                            setupPlayButton(s);
+                            setupDeleteButton(s);
+                            s.getChildren().remove(1);
+                        }
+                        i--;
+                        break;
+                    }
+                }
+            }
+            Files.delete(path);
+            songTiles.remove(st);
+            vbox.getChildren().remove(st); 
+            if(player.getStatus() == Status.PLAYING){
+                player.pause();
+                songLabel.setText("   No Song Currently Playing!");
+            }
+        }
+        catch(IOException e){
+            e.printStackTrace();
+        }
+    }
     //this method brings the home page to view
     public void home() {
         middlePane.getChildren().clear();
         middlePane.getChildren().add(homePage);
         lastSeenPanes.add(homePage);
         topPaneLabel.setText("Welcome to your Home Directory! Add a song to get started!");
+        label1.setText("JTunes");
         seenPanesIndex += 1;
         sortButton.setVisible(true);
         fileButton.setVisible(true);
+        searchbar.setVisible(true);
     }
     /* this method draws from the playlistFiles folder in resources to bring back past playlists that you have already made
      * creates all the existing PlaylistTiles and displays them as well as sets up their functionality
@@ -412,31 +502,39 @@ public class Controller implements Initializable {
                 int row = playlistCount / 3;
                 int col = playlistCount % 3;
                 pt.getButton().setText(pt.getName());
+                pt.setPlaylistPage(pt.createPlaylistPage(pt.getJsonPath()));
                 //This sets up the playlist page which displays after you click the PlaylistTile
                 pt.getButton().setOnAction(new EventHandler<ActionEvent>() {
                         @Override
                         public void handle(ActionEvent e){
                             middlePane.getChildren().clear();
-                            middlePane.getChildren().add(pt.createPlaylistPage());
-                            for(SongTile s: pt.getPlaylistPage().getSongList()){
+                            middlePane.getChildren().add(pt.createPlaylistPage(pt.getJsonPath()));
+                            for(SongTile s: pt.getSongList()){
                                 setupPlayButton(s);
+                                setupDeleteButton(s);
+                                s.getChildren().remove(1);
                             }
-                            lastSeenPanes.add(pt.createPlaylistPage());
+                            lastSeenPanes.add(pt.getPlaylistPage());
                             seenPanesIndex += 1;
                             sortButton.setVisible(true);
                             fileButton.setVisible(false);
+                            searchbar.setVisible(false);
                             currentPlaylist = pt; 
+                            songQueue = pt.getSongList();
+                            label1.setText("JTunes");
                             if(pt.getName().charAt(0) == '\"'){
-                            topPaneLabel.setText(pt.getName().substring(1, pt.getName().length() - 1));
-                        }
-                        else{
-                            topPaneLabel.setText("  " + pt.getName().replace('"', ' '));
-                        }
+                                topPaneLabel.setText(pt.getName().substring(1, pt.getName().length() - 1));
+                            }
+                            else{  
+                                topPaneLabel.setText(pt.getName().replace('"', ' '));
+                            }
                         }
                 });
                 playlistCount++; 
                 playlistArray.add(pt);
                 gp.add(pt.getButton(), col, row);
+                searchbar.setVisible(false);
+                label1.setVisible(true);
             }
         }
         //Setting up the Library Page to display multiple playlists
@@ -461,22 +559,44 @@ public class Controller implements Initializable {
             e.printStackTrace();
             return null;
         }
-}
+    }
     //This method brings the library page to view
     public void library() {
         middlePane.getChildren().clear();
         middlePane.getChildren().add(libraryPage);
         lastSeenPanes.add(libraryPage);
         seenPanesIndex += 1;
-        topPaneLabel.setText("   Welcome to your Playlists!");
+        topPaneLabel.setText("Welcome to your Library! Here You Can Find Your Playlists");  
+        label1.setText("Library");
         sortButton.setVisible(false); 
         fileButton.setVisible(true);
+        searchbar.setVisible(false);
+        topPaneLabel.setVisible(true);
     }
     //This one sets up the functionality for the return button, allowing you to go back to previous pages
     public void returnFunction(){
         if(seenPanesIndex > 0){
             middlePane.getChildren().clear();
             middlePane.getChildren().add(lastSeenPanes.get(seenPanesIndex - 1));
+            if(lastSeenPanes.get(seenPanesIndex - 1) == homePage){
+                sortButton.setVisible(true);
+                fileButton.setVisible(true);
+                searchbar.setVisible(true);
+                label1.setText("JTunes");
+                
+            }
+            else if(lastSeenPanes.get(seenPanesIndex - 1) == libraryPage){
+                sortButton.setVisible(false);
+                fileButton.setVisible(true);
+                searchbar.setVisible(false);
+                label1.setText("Library");
+            }
+            else{
+                sortButton.setVisible(true);
+                fileButton.setVisible(false);
+                searchbar.setVisible(false);
+                label1.setText("JTunes");
+            }
             seenPanesIndex -= 1;
         }
     }
@@ -531,7 +651,8 @@ public class Controller implements Initializable {
     //This method sorts the songTiles on a PlaylistPage
     public ArrayList<SongTile> sortPlaylistSongs(ArrayList<SongTile> stArr, int ts){
         if(timesSorted % 4 == 3){
-            stArr = (ArrayList)currentPlaylist.getPlaylistPage().getCopySongList();
+            stArr.clear();
+            stArr = (ArrayList)currentPlaylist.getPlaylistPage().getCopySongList().clone();
             return stArr;
         }
         else{
@@ -557,16 +678,45 @@ public class Controller implements Initializable {
             middlePane.getChildren().add(homePage);
         }
         else{
-            ArrayList<SongTile> al = currentPlaylist.getPlaylistPage().getSongList(); 
-            al = currentPlaylist.getPlaylistPage().getSongList();
+            ArrayList<SongTile> al = currentPlaylist.getSongList(); 
+            al = currentPlaylist.getSongList();
             al = sortPlaylistSongs(al, currentPlaylist.getPlaylistPage().getTimesSorted());
             if(currentPlaylist.getPlaylistPage().getTimesSorted() % 4 == 3){
                 sortButton.setText("Sort");
             }
             currentPlaylist.getPlaylistPage().incrementTimesSorted();
             middlePane.getChildren().clear();
+            currentPlaylist.getPlaylistPage().getVBox().getChildren().clear();
             currentPlaylist.getPlaylistPage().loadSongs(al);
             middlePane.getChildren().add(currentPlaylist.getPlaylistPage());
+        }
+    }
+    /*This is the searching function; it just checks if the song attributes 
+      contain the string being searched for and displays them
+    */
+    public void filterData(String searchString, ArrayList<SongTile> arr, VBox v){
+        ObservableList<SongTile> filteredSongs = FXCollections.observableArrayList();
+        if(searchString.length() == 0){
+            for(SongTile st: arr){
+                filteredSongs.add(st); 
+            }
+        }
+        else{
+            for(SongTile t: arr){
+                if(t.getSong().getSongTitle().toLowerCase().contains(searchString.toLowerCase())){
+                    filteredSongs.add(t);
+                }
+                else if(t.getSong().getSongArtist().toLowerCase().contains(searchString.toLowerCase())){
+                    filteredSongs.add(t);
+                }
+                else if(t.getSong().getAlbumName().toLowerCase().contains(searchString.toLowerCase())){
+                    filteredSongs.add(t);
+                }
+            }
+        }
+        v.getChildren().clear();
+        for(SongTile f: filteredSongs){
+            v.getChildren().add(f);
         }
     }
 }

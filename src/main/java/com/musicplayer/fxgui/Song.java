@@ -8,11 +8,6 @@ import org.jaudiotagger.audio.AudioFileIO;
 import org.jaudiotagger.tag.Tag;
 import org.jaudiotagger.tag.FieldKey;
 
-
-import javax.swing.JLabel;
-
-
-
 public class Song{
     String songTitle; 
     String songArtist;
@@ -20,7 +15,6 @@ public class Song{
     int length;
     String duration;
     String filePath;
-    public JLabel jl;
     public Song(String fp){
         try{
             AudioFile af = AudioFileIO.read(new File(fp));
@@ -33,12 +27,7 @@ public class Song{
             filePath = fp;
         }
         catch(Exception e){
-            e.printStackTrace();
         }
-    }
-    
-    public void test(){
-        System.out.println("hello");
     }
     public static String convertToMinutes(int d){
         int min = d / 60;

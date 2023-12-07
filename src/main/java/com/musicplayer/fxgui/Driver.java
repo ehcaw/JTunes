@@ -11,12 +11,10 @@ import javafx.stage.WindowEvent;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 
-
 /* Driver class
  * Everything runs through here
 */
 public class Driver extends Application {
-	
 	@Override
 	public void start(Stage stage) throws IOException {
 		try{
@@ -26,10 +24,8 @@ public class Driver extends Application {
 		stage.show();
 		stage.setResizable(false);
 		stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
-
 			@Override
 			public void handle(WindowEvent arg0) {
-				
 				Platform.exit();
 				System.exit(0);	
 			}		
@@ -39,7 +35,6 @@ public class Driver extends Application {
 			e.printStackTrace();
 		}
 	}	
-
 	public static void main(String[] args) {
 		launch(args);
 	}

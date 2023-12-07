@@ -4,7 +4,6 @@ import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
 import javafx.application.Application;
-import javafx.scene.Scene;
 import java.io.File;
 
 /* File chooser class for adding a song to the library

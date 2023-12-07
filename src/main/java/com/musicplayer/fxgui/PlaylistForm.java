@@ -55,9 +55,7 @@ public class PlaylistForm extends Application{
                 stage.close();
             }
         });
-    
     }
-    
     //Getter methods
     public String getText(){
         return playlistName.getText();
