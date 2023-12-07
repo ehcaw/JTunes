@@ -113,11 +113,13 @@ public class Controller implements Initializable {
         directory = new File("src/main/resources/songfolder");
         files = directory.listFiles();
         numSongs = files.length;
+        // song folder includes this sentinel song by default in order to "start" the app; its ignored in the GUI and when actually using the app
         if (files != null) {
             for (int i = 0; i < files.length; i++) {
                 if(files[i].getPath().equals("src/main/resources/songfolder/TEST_One minute of silence (ID 0917)_BSB 9.47.53 AM.mp3")){
                     songFiles.add(files[i]);
                 }
+                //adds the user songs into their respective arrays;
                 if(!files[i].getName().substring(0, 1).equals(".") && !files[i].getPath().equals("src/main/resources/songfolder/TEST_One minute of silence (ID 0917)_BSB 9.47.53 AM.mp3")){
                     songFiles.add(files[i]);
                     Song s = new Song(files[i].getPath());
@@ -127,7 +129,7 @@ public class Controller implements Initializable {
         }
         //setting up searchbar functionalities; searchbar that works for the library vs when you're on a playlist page
         searchbar.textProperty().addListener((observable, oldValue, newValue) -> { filterData(newValue, songTiles, vbox);});
-        //editing the style of the pane
+        //editing the style of the vbox
         vbox = new VBox();
         vbox.setPadding(new Insets(10));
         vbox.setSpacing(5);
@@ -202,7 +204,7 @@ public class Controller implements Initializable {
             }
         });    
     }
-    //play function
+    //play function; it modifies the audio output and the label for the play button
     public void playMedia() {
         if (player.getStatus() == Status.PLAYING) {
             player.pause();
@@ -214,7 +216,7 @@ public class Controller implements Initializable {
             player.play();
         }
     }
-    //changes one of the labels so it states the song that is currently playing
+    //changes the label on the bottom so it states the song that is currently playing
     public void setLabel(){
         try{
             String p = player.getMedia().getSource();
@@ -228,6 +230,7 @@ public class Controller implements Initializable {
     }
     //the functionality for the rewind button
     public void prevMedia() {
+        //this is when the current song is not the first song in the queue
         if (currSongIndex > 0) {
             currSongIndex--;
             player.stop();
@@ -238,6 +241,7 @@ public class Controller implements Initializable {
             setLabel();
             playButton.setText("|>");
         }
+        //if the current song is the first song in the list, it will go back to the end
         else {
             currSongIndex = songFiles.size() - 1;
             player.stop();
@@ -252,6 +256,7 @@ public class Controller implements Initializable {
     }
     //the functionality for the skip button
     public void nextMedia() {
+        //this is for when the song is not the last song in the queue
         if (currSongIndex < songQueue.size() - 1) {
             currSongIndex++;
             player.stop();
@@ -262,6 +267,7 @@ public class Controller implements Initializable {
             initializeTimeSlider();
             playButton.setText("|>");
         }
+        // it goes to the beginning of the song queue
         else {
             currSongIndex = 0;
             player.stop();
@@ -287,6 +293,7 @@ public class Controller implements Initializable {
             if(index > 0){
                 type = fileName.substring(index + 1);
         }
+        //checks if the file type is mp3; currently there is no check to see if the file type is not MP3
         if(type.equals("mp3")){
             String directoryPath = directory.getPath();
             Path d = Paths.get(directoryPath);
@@ -297,6 +304,7 @@ public class Controller implements Initializable {
             }
             catch(Exception e){}
             }
+            //setting up the songTile and displaying it on the GUI
             songFiles.add(file);
             String fp = file.getPath().substring(file.getPath().lastIndexOf("/"));
             String directoryPath = directory.getPath();
@@ -312,6 +320,7 @@ public class Controller implements Initializable {
             vbox.getChildren().add(st);
             numSongs += 1;
         }
+        //if not the adding a song, then making a playlist and adding it to the library page as well as setting JSON for song paths
         else{
             PlaylistTile pt = new PlaylistTile(playlistCount);
             PlaylistForm pf = new PlaylistForm(pt); 
@@ -350,7 +359,7 @@ public class Controller implements Initializable {
             gp.add(pt.getButton(), col, row);
     }
     }   
-    //all the songTiles have a playButton; this method just sets it up
+    //all the songTiles have a playButton; this method just sets it up to play the audio when its clicked
     public void setupPlayButton(SongTile s){
         s.playButton.setOnAction(new EventHandler<ActionEvent>(){
                 @Override
@@ -376,6 +385,7 @@ public class Controller implements Initializable {
                 }
             });
     }
+    //this method sets up the button for the song tiles on the library page in order to add them to a playlist
     public void setupAddButton(SongTile s){
         s.addButton.setOnAction(new EventHandler<ActionEvent>(){
             @Override
@@ -449,10 +459,13 @@ public class Controller implements Initializable {
                     }
                 }
             }
+            //this removes the song from the folder and then stops the song 
             Files.delete(path);
             songTiles.remove(st);
             vbox.getChildren().remove(st); 
-            if(player.getStatus() == Status.PLAYING){
+            System.out.println(player.getMedia().getSource());
+            System.out.println(Paths.get(st.getSong().getFilePath()).toUri().toString());
+            if(player.getStatus() == Status.PLAYING && player.getMedia().getSource().equals(Paths.get(st.getSong().getFilePath()).toUri().toString())){
                 player.pause();
                 songLabel.setText("   No Song Currently Playing!");
             }
