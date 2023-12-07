@@ -29,6 +29,7 @@ public class Song{
         catch(Exception e){
         }
     }
+    //method to format the number of seconds read from the mp3 metadata to a displayable string
     public static String convertToMinutes(int d){
         int min = d / 60;
         int sec = d % 60;
@@ -40,6 +41,7 @@ public class Song{
         String mAndS = minutes + ":" + seconds;
         return mAndS;
     }
+    //getter methods
     public String getFilePath(){
         return filePath;
     }

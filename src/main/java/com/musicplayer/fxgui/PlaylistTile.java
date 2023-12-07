@@ -154,6 +154,7 @@ public class PlaylistTile extends Button{
     public void setName(String n){
         name = n;
     }
+    // method for removing a song from the playlist, changing the corresponding json and the songList attribute
     public void removeSongFromPlaylist(String path, String jsonpath, SongTile st){
         try{
             JsonObject existingData = readJsonFile(jsonpath);
@@ -170,8 +171,6 @@ public class PlaylistTile extends Button{
             String updatedString = existingData.toString();
             writeJsonFile(jsonpath, updatedString);
             songList.remove(st);
-            playlistPage.getVBox().getChildren().remove(st);
-            playlistPage.getVBox().requestLayout();
         }
         catch(JsonParseException e){
             e.printStackTrace();

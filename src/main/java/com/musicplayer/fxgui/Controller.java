@@ -459,7 +459,7 @@ public class Controller implements Initializable {
                     }
                 }
             }
-            //this removes the song from the folder and then stops the song 
+            //this removes the song from the folder and then stops the song from playing if the song deleted is the one playing
             Files.delete(path);
             songTiles.remove(st);
             vbox.getChildren().remove(st); 
@@ -488,7 +488,6 @@ public class Controller implements Initializable {
     }
     /* this method draws from the playlistFiles folder in resources to bring back past playlists that you have already made
      * creates all the existing PlaylistTiles and displays them as well as sets up their functionality
-     * 
      */
     public void libraryCreation(){
         gp = new GridPane();
@@ -502,12 +501,14 @@ public class Controller implements Initializable {
         File[] fa = d.listFiles(); 
         Arrays.sort(fa, Comparator.comparing(File::getName));
         for(File f: fa){
+            //this section filters out files inside because there is a DS_Store file and the app shouldn't try to read those
             String type = "";
             String fileName = f.toString();
             int index = fileName.lastIndexOf(".");
             if(index > 0){
                 type = fileName.substring(index + 1);
             }
+            //makes sure the file type is of type JSON and creates the playlist page
             if(type.equals("json")){
                 String path = f.getPath(); 
                 String title = retrieveJsonObject(path, "name").toString();
@@ -591,6 +592,7 @@ public class Controller implements Initializable {
         if(seenPanesIndex > 0){
             middlePane.getChildren().clear();
             middlePane.getChildren().add(lastSeenPanes.get(seenPanesIndex - 1));
+            //these if statments adjust the buttons to make sure the right ones are showing when we return to different pages
             if(lastSeenPanes.get(seenPanesIndex - 1) == homePage){
                 sortButton.setVisible(true);
                 fileButton.setVisible(true);
@@ -682,7 +684,6 @@ public class Controller implements Initializable {
             ArrayList<SongTile> al = sortSongs(songTiles, timesSorted);  
             timesSorted++; 
             songTiles = (ArrayList)al.clone();
-        // Collections.shuffle(songTiles);
             middlePane.getChildren().clear();
             vbox.getChildren().clear();
             for(SongTile s: songTiles){
